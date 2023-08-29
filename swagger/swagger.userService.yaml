@@ -1,0 +1,217 @@
+tags:
+    name: User Management
+
+components:
+  schemas:
+    user:
+      type: object
+      properties:
+        email:
+          type: string
+          example: xyz@gmail.com
+        password:
+          type: string
+          example: password123
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        mobNumber:
+          type: string
+          example: 1234567890
+        isAdmin:
+          type: boolean
+        isAuthorized:
+          type: boolean
+        session:
+          type: boolean
+      required:
+        - email
+        - password
+        - firstName
+        - lastName
+        - mobNumber
+
+    logoutRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+      required:
+        - email
+
+    userLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          example: xyz@gmail.com
+        password:
+          type: string
+          example: password123
+      required:
+        - email
+        - password
+
+    userDelete:
+      type: object
+      properties:
+        email:
+          type: string
+          example: admin@example.com
+      required:
+        - email
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  
+
+paths:
+  /user/signup:
+    post:
+      summary: Signup a new user
+      tags:
+        - User Management
+      description: User can signup by providing necessary information.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user'
+      responses:
+        '201':
+          description: Created. User registered successfully.
+        '406':
+          description: Value not accepted.
+        '500':
+          description: Internal server error.
+
+  /user/login:
+    post:
+      summary: Log in a user
+      tags:
+        - User Management
+      description: User can log in using their credentials.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userLogin'
+      responses:
+        '200':
+          description: Authorized. User logged in successfully.
+        '401':
+          description: Unauthorized. Invalid credentials.
+        '500':
+          description: Internal server error.
+  
+  /user/delete:
+    delete:
+      summary: Delete a user (Admin only)
+      tags:
+        - User Management
+      description: Delete a user account. This endpoint is only accessible by admin users.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userDelete'
+      responses:
+        '204':
+          description: User deleted successfully.
+        '401':
+          description: Unauthorized. Admin access required.
+        '404':
+          description: User not found.
+        '500':
+          description: Internal server error.
+
+  /user/getUsers:
+    get:
+      summary: Get a list of users (Admin Only)
+      tags:
+        - User Management
+      description: Retrieve a list of users. This endpoint is only accessible by admin users.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: pageNumber
+          in: query
+          # description: Page number for pagination (default: 1)
+          schema:
+            type: integer
+        - name: pageSize
+          in: query
+          # description: Number of items per page (default: 10)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/userGET'
+        '401':
+          description: Unauthorized. Admin access required.
+        '403':
+          description: Forbidden. Token missing or invalid.
+        '500':
+          description: Internal server error.
+  
+  /user/logout:
+    post:
+      summary: Logout a user
+      tags:
+        - User Management
+      description: Logout a user. The user is identified by their email.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/logoutRequest'
+      responses:
+        '200':
+          description: User logged out successfully.
+        '400':
+          description: Bad Request. Invalid user input.
+        '500':
+          description: Internal server error.
+
+  /user/confirm/{confirmationToken}:
+    get:
+      summary: Confirm user account registration
+      tags:
+        - User Management
+      description: Confirm a user's account registration using the provided confirmation token.
+      parameters:
+        - name: confirmationToken
+          in: path
+          description: Token for confirming user account registration.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account confirmed successfully.
+        '404':
+          description: Token not found or expired.
+        '500':
+          description: Internal server error.

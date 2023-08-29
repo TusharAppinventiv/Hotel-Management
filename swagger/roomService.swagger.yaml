@@ -1,0 +1,190 @@
+paths:
+  /services/create:
+    post:
+      summary: Create a new room service (Admin only)
+      tags:
+        - Room Services
+      description: Create a new room service using service details. This endpoint is only accessible by admin users.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/roomServiceCreate'
+      responses:
+        '200':
+          description: Successful creation of a room service.
+        '400':
+          description: Bad Request. Invalid user input.
+        '401':
+          description: Unauthorized. Admin access required.
+        '403':
+          description: Forbidden. Token missing or invalid.
+        '500':
+          description: Internal server error.
+  
+  /services/getServices:
+    get:
+      summary: Get room services (Admin or User)
+      tags:
+        - Room Services
+      description: Retrieve a list of room services. This endpoint is accessible by both admin and user roles.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: pageNumber
+          schema:
+            type: integer
+            default: 1
+          # description: Page number for pagination (default: 1)
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            default: 10
+          # description: Number of items per page (default: 10)
+      responses:
+        '200':
+          description: Successful retrieval of room services.
+        '401':
+          description: Unauthorized. User authentication required.
+        '403':
+          description: Forbidden. Token missing or invalid.
+        '500':
+          description: Internal server error.
+
+  /services/deleteEvents:
+    delete:
+      summary: Delete a room service (Admin only)
+      tags:
+        - Room Services
+      description: Delete a room service using its service name. This endpoint is only accessible by admin users.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/serviceDelete'
+      responses:
+        '200':
+          description: Successful deletion of a room service.
+        '400':
+          description: Bad Request. Invalid user input.
+        '401':
+          description: Unauthorized. Admin access required.
+        '403':
+          description: Forbidden. Token missing or invalid.
+        '500':
+          description: Internal server error
+  
+  /services/order:
+    post:
+      summary: Order a room service (User)
+      tags:
+        - Room Services
+      description: Order a room service by providing the room ID, service ID, and secret key.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/serviceOrder'
+      responses:
+        '200':
+          description: Successful order of a room service.
+        '400':
+          description: Bad Request. Invalid user input.
+        '401':
+          description: Unauthorized. User access required.
+        '403':
+          description: Forbidden. Token missing or invalid.
+        '500':
+          description: Internal server error.
+  
+  /services/complete/{serviceTrackingId}:
+    put:
+      summary: Mark a room service as complete (User)
+      tags:
+        - Room Services
+      description: Mark a room service as complete by providing the service tracking ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: serviceTrackingId
+          required: true
+          schema:
+            type: integer
+            example: 123
+          description: The ID of the service tracking entry.
+      responses:
+        '200':
+          description: Room service marked as complete successfully.
+        '400':
+          description: Bad Request. Invalid user input.
+        '401':
+          description: Unauthorized. User access required.
+        '403':
+          description: Forbidden. Token missing or invalid.
+        '500':
+          description: Internal server error.
+
+  
+
+components:
+  schemas:
+    roomServiceCreate:
+      type: object
+      properties:
+        serviceName:
+          type: string
+          example: Room Cleaning
+        serviceDescription:
+          type: string
+          example: Professional cleaning service for rooms
+        servicePrice:
+          type: number
+          example: 25.99
+      required:
+        - serviceName
+        - serviceDescription
+        - servicePrice
+    
+    serviceDelete:
+      type: object
+      properties:
+        serviceName:
+          type: string
+          example: Room Cleaning
+      required:
+        - serviceName
+
+    serviceOrder:
+      type: object
+      properties:
+        room_id:
+          type: integer
+          example: 123
+        service_id:
+          type: integer
+          example: 456
+        secret_key:
+          type: string
+          example: secret123
+      required:
+        - room_id
+        - service_id
+        - secret_key
+
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT

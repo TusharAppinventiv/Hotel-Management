@@ -1,0 +1,161 @@
+paths:
+  /event/create:
+    post:
+      summary: Create a new event (Admin only)
+      tags:
+        - Event Management
+      description: Create a new event. This endpoint is only accessible by admin users.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/eventCreate'
+      responses:
+        '201':
+          description: Event created successfully.
+        '400':
+          description: Bad Request. Invalid user input.
+        '401':
+          description: Unauthorized. Admin access required.
+        '403':
+          description: Forbidden. Token missing or invalid.
+        '500':
+          description: Internal server error.
+
+  /event/getEvents:
+    get:
+      summary: Get a list of events
+      tags:
+        - Event Management
+      description: Get a list of events. Admin users and regular users can access this endpoint.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: pageNumber
+          in: query
+          # description: Page number for pagination (default: 1)
+          schema:
+            type: integer
+        - name: pageSize
+          in: query
+          # description: Number of items per page (default: 10)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/event'
+        '401':
+          description: Unauthorized. Token missing or invalid.
+        '500':
+          description: Internal server error.
+  
+  /event/deleteEvents:
+    delete:
+      summary: Delete an event (Admin only)
+      tags:
+        - Event Management
+      description: Delete an event by its name. This endpoint is only accessible by admin users.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/deleteEvent'
+      responses:
+        '200':
+          description: Event deleted successfully.
+        '400':
+          description: Bad Request. Invalid user input.
+        '401':
+          description: Unauthorized. Admin access required.
+        '403':
+          description: Forbidden. Token missing or invalid.
+        '404':
+          description: Event not found.
+        '500':
+          description: Internal server error.
+
+components:
+  schemas:
+    deleteEvent:
+      type: object
+      properties:
+        Event_name:
+          type: string
+          example: Summer Gala
+      required:
+        - Event_name
+
+    eventCreate:
+      type: object
+      properties:
+        Event_name:
+          type: string
+          example: Summer Gala
+        Event_description:
+          type: string
+          example: Join us for a night of fun!
+        Event_date:
+          type: string
+          format: date
+          example: '2023-09-15'
+        Event_dress:
+          type: string
+          example: Semi-formal
+      required:
+        - Event_name
+        - Event_description
+        - Event_date
+        - Event_dress
+    
+    event:
+      type: object
+      properties:
+        Event_name:
+          type: string
+          example: Summer Gala
+        Event_description:
+          type: string
+          example: Join us for a night of fun!
+        Event_date:
+          type: string
+          format: date
+          example: '2023-09-15'
+        Event_dress:
+          type: string
+          example: Semi-formal
+
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
+
+parameters:
+  pageNumber:
+    name: pageNumber
+    in: query
+    # description: Page number for pagination (default: 1)
+    required: false
+    schema:
+      type: integer
+      example: 1
+  pageSize:
+    name: pageSize
+    in: query
+    # description: Page size for pagination (default: 10)
+    required: false
+    schema:
+      type: integer
+      example: 10

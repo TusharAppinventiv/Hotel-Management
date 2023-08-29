@@ -9,18 +9,41 @@ import eventRouter from './routes/events.routes'
 import { EventCreatingService } from './services/events.service';
 import serviceRouter from './routes/roomService.routes';
 import checkInRouter from './routes/checkIn.routes'
+import swaggerUi from 'swagger-ui-express';
+import swaggerJSDoc from 'swagger-jsdoc'
 
 dotenv.config();
+
+const options:swaggerJSDoc.options ={
+    definition:{
+        openapi:'3.0.0',
+        info:{
+            title:"Hotel Management",
+            version:"1.0.0"
+        },
+        schema:["http","https"],
+        server:[
+            {
+                url:"http://localhost:3000/"
+            }
+        ]
+    },
+    apis: ['./swagger/*'],
+};
+
 const app = express();
+
 const port = process.env.PORT;
 
-app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use('/checkIn', checkInRouter)
 app.use('/user', userRouter);
 app.use('/event', eventRouter);
 app.use('/room', roomRouter);
 app.use('/services', serviceRouter);
+
+const swaggerSpec = swaggerJSDoc(options);
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 sequelize.sync().then(() => {
     redFun();

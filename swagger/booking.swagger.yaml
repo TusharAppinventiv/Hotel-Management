@@ -1,0 +1,183 @@
+paths:
+  /room/bookRooms:
+    post:
+      summary: Book a room (User only)
+      tags:
+        - Room Booking
+      description: Book a room for a user. This endpoint is only accessible by authenticated users.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/bookingCreate'
+      responses:
+        '201':
+          description: Room booked successfully.
+        '400':
+          description: Bad Request. Invalid user input.
+        '401':
+          description: Unauthorized. User access required.
+        '403':
+          description: Forbidden. Token missing or invalid.
+        '500':
+          description: Internal server error.
+
+  /room/confirmBooking:
+    post:
+      summary: Confirm a room booking (Admin only)
+      tags:
+        - Room Booking
+      description: Confirm a room booking. This endpoint is only accessible by admin users.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/bookingConfirmation'
+      responses:
+        '200':
+          description: Booking confirmed successfully.
+        '400':
+          description: Bad Request. Invalid user input.
+        '401':
+          description: Unauthorized. Admin access required.
+        '403':
+          description: Forbidden. Token missing or invalid.
+        '500':
+          description: Internal server error.
+  
+  /room/denyBooking:
+    post:
+      summary: Deny a room booking (Admin only)
+      tags:
+        - Room Booking
+      description: Deny a room booking. This endpoint is only accessible by admin users.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/denyBooking'
+      responses:
+        '200':
+          description: Booking denied successfully.
+        '400':
+          description: Bad Request. Invalid user input.
+        '401':
+          description: Unauthorized. Admin access required.
+        '403':
+          description: Forbidden. Token missing or invalid.
+        '500':
+          description: Internal server error.
+
+  /room/available-rooms:
+    get:
+      summary: Get available rooms for a date range
+      tags:
+        - Room Booking
+      description: Get a list of available rooms that are not booked during the requested date range.
+      parameters:
+        - $ref: '#/components/parameters/checkinDate'
+        - $ref: '#/components/parameters/checkoutDate'
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  availableRoomIds:
+                    type: array
+                    items:
+                      type: integer
+                    example: [101, 102, 103]
+        '400':
+          description: Bad Request. Invalid user input.
+        '500':
+          description: Internal server error.
+
+components:
+  schemas:
+    bookingConfirmation:
+      type: object
+      properties:
+        booking_id:
+          type: number
+          example: 1
+        payment_id:
+          type: string
+          example: PAY123456
+      required:
+        - booking_id
+        - payment_id
+
+    denyBooking:
+      type: object
+      properties:
+        booking_id:
+          type: number
+          example: 1
+        payment_id:
+          type: string
+          example: PAY123456
+      required:
+        - booking_id
+        - payment_id
+
+    bookingCreate:
+      type: object
+      properties:
+        user_id:
+          type: number
+          example: 1
+        room_id:
+          type: number
+          example: 101
+        checkin_date:
+          type: string
+          format: date
+          example: 2023-08-25
+        checkout_date:
+          type: string
+          format: date
+          example: 2023-08-28
+        payment_status:
+          type: boolean
+          example: true
+      required:
+        - user_id
+        - room_id
+        - checkin_date
+        - checkout_date
+ 
+  parameters:
+    checkinDate:
+      name: checkinDate
+      in: query
+      description: Check-in date (YYYY-MM-DD format)
+      required: true
+      schema:
+        type: string
+      example: '2023-09-01'
+    checkoutDate:
+      name: checkoutDate
+      in: query
+      description: Checkout date (YYYY-MM-DD format)
+      required: true
+      schema:
+        type: string
+      example: '2023-09-03'
+
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
