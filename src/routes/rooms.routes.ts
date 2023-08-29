@@ -5,10 +5,11 @@ import BookingController from '../controllers/booking.controller';
 import {roomValidator} from '../middlewares/roomValidator'
 import { verifyUser } from '../middlewares/users.auth';
 import { bookingValidator, bookingConfirmation, BookingDeny } from '../middlewares/booking.validator';
+import { verifyAdminOrUser } from '../middlewares/verifyAdminOrUser';
 const router = express.Router();
 
 router.post('/create', verifyAdmin,roomValidator, RoomCreatingController.createRoom);
-router.get('/getRooms', verifyAdmin,verifyUser, RoomCreatingController.getRooms);
+router.get('/getRooms', verifyAdminOrUser, RoomCreatingController.getRooms);
 router.post('/bookRooms', verifyUser, bookingValidator, BookingController.createBooking);
 router.post('/confirmBooking',  bookingConfirmation, BookingController.acceptBooking);
 router.post('/denyBooking', verifyAdmin, BookingDeny, BookingController.denyBooking );
