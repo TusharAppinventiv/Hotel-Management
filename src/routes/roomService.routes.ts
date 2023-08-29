@@ -3,10 +3,11 @@ import { roomServiceValidator, roomServiceRequestValidator } from '../middleware
 import express from 'express'
 import { verifyUser } from '../middlewares/users.auth';
 import { verifyAdmin } from '../middlewares/admin.auth';
+import { verifyAdminOrUser } from '../middlewares/verifyAdminOrUser';
 
 const router = express.Router();
 router.post('/create', verifyAdmin, roomServiceValidator, roomServiceController.createRoomService );
-router.get('/getServices', verifyUser,verifyAdmin,roomServiceController.getServices);
+router.get('/getServices', verifyAdminOrUser,roomServiceController.getServices);
 router.delete('/deleteEvents', verifyAdmin,roomServiceController.deleteService);
 router.post('/order', verifyUser,roomServiceRequestValidator, roomServiceController.orderRoomService);
 router.put("/complete/:serviceTrackingId", verifyUser,roomServiceController.completeService);
