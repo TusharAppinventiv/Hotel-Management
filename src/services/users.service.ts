@@ -1,114 +1,65 @@
-import bcrypt from 'bcrypt';
-import userModel from '../models/users.model';
-import jwt from 'jsonwebtoken';
-import * as dotenv from 'dotenv';
-import { responseMessages } from '../responses/user.response';
-
-dotenv.config();
+// UserService.ts
+import * as userQueries from '../entities/user.entities';
 
 export class UserService {
     static async getUserById(id: any) {
-        return userModel.findOne({ where: { id } });
+        return userQueries.getUserById(id);
     }
 
     static async checkUserExistence(userId) {
-        try {
-          const user = await userModel.findByPk(userId); 
-          return user !== null;
-        } catch (error) {
-          console.error("Error checking user existence:", error);
-          throw error;
-        }
-      }
+        return userQueries.checkUserExistence(userId);
+    }
 
     static async getUserByEmail(email) {
-        return userModel.findOne({ where: { email } });
+        return userQueries.getUserByEmail(email);
     }
 
     static async createUser(userData) {
-        return userModel.create(userData);
+        return userQueries.createUser(userData);
     }
 
     static async findUserByMail(email) {
-        try {
-            const user = await userModel.findOne({ where: { email } });
-            return user;
-        } catch (error) {
-            throw new Error(responseMessages.userNotFound);
-        }
+        return userQueries.findUserByMail(email);
     }
-    
 
     static async findUserByMobNumber(mobNumber) {
-        return userModel.findOne({ where: { mobNumber } });
+        return userQueries.findUserByMobNumber(mobNumber);
     }
 
-    static async removeUserByEmail(email){
-        return userModel.destroy({ where: {email} } );
+    static async removeUserByEmail(email) {
+        return userQueries.removeUserByEmail(email);
     }
 
     static async hashedPassword(password) {
-        const saltRounds = 10;
-        return bcrypt.hash(password, saltRounds);
+        return userQueries.hashedPassword(password);
     }
 
     static async generateAuthToken(userId) {
-        const token = jwt.sign({ id: userId }, process.env.USER_KEY, {
-            expiresIn: process.env.EXPIRES_IN,
-        });
-        return token;
+        return userQueries.generateAuthToken(userId);
     }
 
     static async generateAuthTokenAdmin(userId) {
-        const token = jwt.sign({ id: userId }, process.env.ADMIN_KEY, {
-            expiresIn: process.env.EXPIRES_IN,
-        });
-        return token;
+        return userQueries.generateAuthTokenAdmin(userId);
     }
-   
+
     static async findUserEmailAndPassword(email, password) {
-        const user = await userModel.findOne({ where: { email } });
-        if (!user) {
-            return null;
-        }
-
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-
-        const userId = isPasswordValid ? user.id : null;
-
-        return userId;
+        return userQueries.findUserEmailAndPassword(email, password);
     }
 
     static async updateLoginStatus(userId, status) {
-        const user = await userModel.findByPk(userId);
-
-        if (!user) {
-            throw new Error(responseMessages.userNotFound)
-        }
-
-        user.session = status;
-        await user.save();
+        return userQueries.updateLoginStatus(userId, status);
     }
-
 
     static async findUserByConfirmationToken(confirmationToken: string) {
-        return userModel.findOne({ where: { passwordResetToken: confirmationToken } });
+        return userQueries.findUserByConfirmationToken(confirmationToken);
     }
-    
+
     static async updateUserAuthorization(user) {
-        user.isAuthorized = true;
-        await user.save();
+        return userQueries.updateUserAuthorization(user);
     }
-    
 
-    static async getUsers(page: number, pageSize: number){
+    static async getUsers(page: number, pageSize: number) {
         const offset = (page - 1) * pageSize;
-
-        const rooms = await userModel.findAll({
-            limit: pageSize,
-            offset: offset,
-    });
-    return rooms;
-
+        return userQueries.getUsers(offset, pageSize);
     }
 }
