@@ -109,7 +109,7 @@ export class UserController{
         try {
             const { email } = req.body;
             const sessionStatus = await redisClient.get(`status:${email}`);
-    
+
             if (sessionStatus === 'true') {
                 await redisClient.set(`status:${email}`, 'false'); // Update session status in Redis
                 const user = await UserService.findUserByMail(email);
@@ -203,4 +203,91 @@ export class UserController{
             })
         }
     }
+
+    static async deactivateUser(req, res) {
+        try {
+          const userId = req.params.id; 
+          await UserService.deactivateUser(userId);
+    
+          return res.status(responseStatus.success).json({
+            message: responseMessages.userDeactivated
+        })
+        } catch (error) {   
+            return res.status(responseStatus.conflict).json({
+            message: responseMessages.errorUserDeactivated
+        })
+        }
+      }
+
+    static async updateUser(req, res) {
+        try {
+          const updatedData = req.body; 
+    
+          await UserService.updateUser(updatedData);
+    
+        //   return res.status(200).json({ message: 'User updated successfully' });
+        return res.status(responseStatus.success).json({
+            message: responseMessages.userUpdated
+        })
+        } catch (error) {
+        //   return res.status(500).json({ message: 'Error updating user' });
+        return res.status(responseStatus.conflict).json({
+            message: responseMessages.errorUpdatingUser
+        })
+        }
+      }
+
+      // AuthController.ts
+
+      static async sendForgotPasswordEmail(req: any, res: any) {
+        try {
+          const { email } = req.body;
+    
+          // Generate a password reset token
+          const passwordResetToken = uuidv4();
+    
+          // Save the token in the user's record
+          console.log(email);
+          await UserService.savePasswordResetToken(email, passwordResetToken);
+    
+          // Generate the password reset link with the token
+          const resetLink = passwordResetToken;
+    
+          // Generate the email content with the reset link
+          const emailContent = UserTemplates.resetPassword(resetLink);
+    
+          // Send the email
+          await sendStylzedMail(email, 'Password Reset', emailContent);
+    
+        //   return res.status(200).json({ message: 'Password reset email sent successfully.' });
+        return res.status(responseStatus.success).json({
+            message: responseMessages.passwordResetMail
+        })
+        } catch (error) {
+        //   return res.status(500).json({ message: 'Error sending password reset email.' });
+        return res.status(responseStatus.internalServerError).json({
+            message: responseMessages.errorPasswordResetMail
+        })
+        }
+      }
+    
+      static async resetPassword(req: any, res: any) {
+        try {
+          const { token, newPassword } = req.body;
+    
+          // Reset the password using the token
+          await UserService.resetPassword(token, newPassword);
+    
+        //   return res.status(200).json({ message: 'Password reset successful.' });
+        return res.status(responseStatus.success).json({
+            message: responseMessages.passwordResetSuccess
+        })
+        } catch (error) {
+        //   return res.status(500).json({ message: 'Error resetting password.' });
+        return res.status(responseStatus.internalServerError).json({
+            message: responseMessages.notReset
+        })
+        }
+      }
 }
+

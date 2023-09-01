@@ -9,9 +9,33 @@ export async function getUserById(id: any) {
     return userModel.findOne({ where: { id } });
 }
 
+export async function getUserBYPk(id) {
+    return userModel.findByPk(id);
+}
 export async function getUserByEmail(email) {
     return userModel.findOne({ where: { email } });
 }
+export async function findUserByPasswordResetToken(token: string) {
+
+    try {
+      const user = await userModel.findOne({
+        where: {
+          passwordResetToken: token,
+        },
+      });
+  
+      return user;
+    } catch (error) {
+      throw error;
+    }
+}
+
+  export async function updatePassword(user, newPassword: string) {
+    user.password = newPassword;
+    user.passwordResetToken = '';
+
+    await user.save();
+  }
 
 export async function checkUserExistence(userId) {
     try {
@@ -50,6 +74,11 @@ export async function findUserByMail(email) {
         throw new Error(responseMessages.userNotFound);
     }
 }
+
+export async function  updatePasswordResetToken(user, token: string) {
+    user.passwordResetToken = token;
+    await user.save();
+  }
 
 export async function findUserByMobNumber(mobNumber) {
     return userModel.findOne({ where: { mobNumber } });

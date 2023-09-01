@@ -15,7 +15,16 @@ export const responseMessages = {
     logoutSuccessful: 'Logout successful',
     confirmedSuccessfully: 'Account confirmed successfuly',
     emailNotFound: 'Email not found',
-    checkInDoesNotExist: 'Checkin not found'
+    notAllowed: "Not allowed",
+    userDeactivated: 'User deactivated successfully',
+    errorUserDeactivated: "Error deactivating user",
+    userUpdated: "User updated successfully",
+    errorUpdatingUser: "Error updating user",
+    passwordResetMail: 'Password reset email sent successfully.',
+    errorPasswordResetMail: 'Error sending password reset email.',
+    passwordResetSuccess: 'Password reset successful.',
+    notReset: 'Error resetting password.',
+    tokenNAN: 'token is not correct'
 };
 
 export const responseStatus = {
@@ -24,5 +33,6 @@ export const responseStatus = {
     conflict: 409,
     internalServerError: 500,
     notFound: 404,
-    badRequest: 400
+    badRequest: 400,
+    forbidden: 403
 };
