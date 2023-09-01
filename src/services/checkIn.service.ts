@@ -9,15 +9,16 @@ import userModel from "../models/users.model";
 import { responseMessages } from "../responses/checkIn.response";
 import { CheckinTemplateClass } from "../templates/checkIn.template";
 import { sendStylzedMail } from "./email.service";
+import checkInQueries from "../entities/checkIn.entities";
 
 export class CheckinService {
   static async createCheckIn(checkinData) {
-     return checkOutServiceModel.create(checkinData)
+     return checkInQueries.createCheckIn(checkinData); 
     }
 
     static async getBookingById(bookingId) {
         try {
-            const booking = await bookingModel.findByPk(bookingId); 
+            const booking = await checkInQueries.getBookingById(bookingId); 
             return booking;
         } catch (error) {
             console.error("Error fetching booking by ID:", error);
@@ -27,7 +28,7 @@ export class CheckinService {
 
     static async getRoomById(roomId) {
         try {
-          const room = await roomModel.findByPk(roomId);
+          const room = await checkInQueries.getRoomById(roomId); 
           return room;
         } catch (error) {
           console.error('Error getting room by ID:', error);
@@ -37,7 +38,7 @@ export class CheckinService {
     
       static async getUserById(userId) {
         try {
-          const user = await userModel.findByPk(userId);
+          const user = await checkInQueries.getUserById(userId);
           return user;
         } catch (error) {
           console.error('Error getting user by ID:', error);
@@ -48,23 +49,38 @@ export class CheckinService {
       static async getCheckOutAmount(id: any) {
         return bookingModel.findOne({ where: { id } });
     }
-
     static async isAlreadyCheckedIn(bookingId: number): Promise<boolean> {
-        try {
-          const checkOutEntry = await checkOutServiceModel.findOne({
-            where: { booking_id: bookingId }
-          });
-    
-          if (!checkOutEntry) {
-            throw new Error('Check-out entry not found');
-          }
-    
-          return checkOutEntry.checkIn_status;
-        } catch (error) {
-          console.error('Error checking if already checked in:', error);
-          throw error;
+      try {
+        const checkOutEntry = await checkOutServiceModel.findOne({
+          where: { booking_id: bookingId }
+        });
+  
+        if (!checkOutEntry) {
+          // If checkOutEntry is not found, return false (not checked in)
+          return false;
         }
-      }  
+  
+        // Return the checkIn_status value (true if checked in, false if not)
+        return checkOutEntry.checkIn_status;
+      } catch (error) {
+        console.error('Error checking if already checked in:', error);
+        throw error;
+      }
+  }
+  
+
+      static async isPaymentPaid(bookingId) {
+        console.log("Debug: bookingId =", bookingId); 
+        const booking = await bookingModel.findByPk(bookingId);
+
+        if (!booking) {
+            throw new Error(responseMessages.bookingIdNotExist);
+        }
+
+        if (!booking.payment_status) {
+            throw new Error(responseMessages.notPaid);
+        }
+    }
 
       static async createCheckOut(checkin_id, email){
         const checkIn = await checkOutServiceModel.findByPk(checkin_id);

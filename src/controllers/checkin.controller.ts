@@ -5,7 +5,6 @@ import { sendStylzedMail } from "../services/email.service";
 import { checkInConstants } from "../constants/checkIn.constants";
 import { CheckinTemplateClass } from "../templates/checkIn.template";
 
-
 export class CheckinController {
   static async createCheckin(req, res) {
     try {
@@ -17,13 +16,24 @@ export class CheckinController {
         message: responseMessages.bookingIdNotExist
       })
     }
-
     const currentDate = new Date();
-    if (currentDate != booking.checkin_date) {
+    const checkInDate = new Date(booking.checkin_date);
+
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+    const currentDay = currentDate.getDate();
+
+    const bookingYear = checkInDate.getFullYear();
+    const bookingMonth = checkInDate.getMonth();
+    const bookingDay = checkInDate.getDate();
+
+    if (currentYear !== bookingYear || currentMonth !== bookingMonth || currentDay !== bookingDay) {
       return res.status(responseStatus.badRequest).json({
         message: responseMessages.notCheckInDate
       });
     }
+
+     await CheckinService.isPaymentPaid(data.booking_id);
 
     const alreadyCheckedIn = await CheckinService.isAlreadyCheckedIn(data.booking_id);
     if (alreadyCheckedIn) {
@@ -122,4 +132,3 @@ static async declineCheckOut(req, res){
 }
 
 }
-
