@@ -21,12 +21,6 @@ components:
         mobNumber:
           type: string
           example: 1234567890
-        isAdmin:
-          type: boolean
-        isAuthorized:
-          type: boolean
-        session:
-          type: boolean
       required:
         - email
         - password
@@ -215,3 +209,133 @@ paths:
           description: Token not found or expired.
         '500':
           description: Internal server error.
+
+  /user/{id}/deactivate:
+    put:
+      summary: Deactivate a user
+      tags:
+        - User Management
+      description: Deactivate a user by their ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: User ID to deactivate.
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: User deactivated successfully.
+        '400':
+          description: Bad Request. Invalid user ID.
+        '401':
+          description: Unauthorized. Token missing or invalid.
+        '403':
+          description: Forbidden. Token missing or invalid.
+        '500':
+          description: Internal server error.
+
+  
+  /user/update:
+    put:
+      summary: Update user data
+      tags:
+        - User Management
+      description: Update user data for the authenticated user.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 123
+                firstName:
+                  type: string
+                  example: John
+                lastName:
+                  type: string
+                  example: Doe
+                mobNumber:
+                  type: string
+                  example: '+1234567890'
+              required:
+                - id
+      responses:
+        '200':
+          description: User data updated successfully.
+        '400':
+          description: Bad Request. Invalid user input.
+        '401':
+          description: Unauthorized. Token missing or invalid.
+        '403':
+          description: Forbidden. Token missing or invalid.
+        '500':
+          description: Internal server error.
+
+  /user/forgot-password:
+    post:
+      summary: Send forgot password email
+      tags:
+        - User Management
+      description: Send a forgot password email to the user's registered email address.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+              required:
+                - email
+      responses:
+        '200':
+          description: Forgot password email sent successfully.
+        '400':
+          description: Bad Request. Invalid user input.
+        '500':
+          description: Internal server error.
+
+  /user/reset-password:
+    post:
+      summary: Reset user's password
+      tags:
+        - User Management
+      description: Reset the user's password using a reset token and a new password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: your-reset-token-here
+                newPassword:
+                  type: string
+                  example: newpassword123
+              required:
+                - token
+                - newPassword
+      responses:
+        '200':
+          description: Password reset successful.
+        '400':
+          description: Bad Request. Invalid user input or token expired.
+        '401':
+          description: Unauthorized. Token missing or invalid.
+        '500':
+          description: Internal server error.
+
+

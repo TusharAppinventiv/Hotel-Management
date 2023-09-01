@@ -6,7 +6,6 @@ export const bookingValidator = (req: any, res:any, next: () => void) => {
         room_id: Joi.number().required(),
         checkin_date: Joi.string().required(),
         checkout_date: Joi.string().required(),
-        payment_status: Joi.boolean
     })
     const result = bookingCreate.validate(req.body);
     if(result.error){

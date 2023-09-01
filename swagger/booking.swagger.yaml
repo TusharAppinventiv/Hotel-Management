@@ -149,9 +149,6 @@ components:
           type: string
           format: date
           example: 2023-08-28
-        payment_status:
-          type: boolean
-          example: true
       required:
         - user_id
         - room_id
