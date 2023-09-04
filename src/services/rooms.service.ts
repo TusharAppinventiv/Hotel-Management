@@ -4,32 +4,45 @@ import RecordModel from "../models/paymentTracking.model";
 import { responseMessages,responseStatus } from "../responses/booking.response";
 import dotenv from 'dotenv';
 import { Op } from 'sequelize'; 
+import RoomQueries from "../entities/rooms.entities";
 
 dotenv.config();
 
 export class roomCreatingService{
-    static getRoomByName(room_noS){
-        return roomModel.findOne({where: {room_noS}});
+    static setRoomAvailabilitysetRoomAvailability(roomId: any, arg1: boolean) {
+        throw new Error("Method not implemented.");
+    }
+    
+    static async getRoomByName(room_noS) {
+        return RoomQueries.getRoomByName(room_noS);
     }
 
-    static async createRoom(roomData){
-        return roomModel.create(roomData);
+    static async createRoom(roomData) {
+        return RoomQueries.createRoom(roomData);
     }
 
     static async getRoomById(id: any) {
-        return roomModel.findOne({ where: { id } });
+        return RoomQueries.getRoomById(id);
     }
 
     static async checkRoomExistence(roomId) {
-        try {
-          const room = await roomModel.findByPk(roomId); 
-          return room !== null;
-        } catch (error) {
-          console.error("Error checking room existence:", error);
-          throw error;
-        }
+        return RoomQueries.checkRoomExistence(roomId);
     }
 
+    static async setRoomAvailability(roomId, availability) {
+        try {
+          const room = await RoomQueries.findById(roomId);
+    
+          if (!room) {
+            throw new Error('Room not found');
+          }
+    
+          room.room_availability = availability;
+          await RoomQueries.save(room);
+        } catch (error) {
+          throw error;
+        }
+      }
 
     static async getRoomCost(roomId) {
         try {
@@ -40,20 +53,12 @@ export class roomCreatingService{
 
             return room.room_price; // Assuming the room has a 'cost' property
         } catch (error) {
-            console.error("Error getting room cost:", error);
             throw new Error("Error getting room cost");
         }
     }
 
-    static async getRooms(page: number, pageSize: number){
-        const offset = (page - 1) * pageSize;
-
-        const rooms = await roomModel.findAll({
-            limit: pageSize,
-            offset: offset,
-    });
-    return rooms;
-
+    static async getRooms(page: number, pageSize: number) {
+        return RoomQueries.getRooms(page, pageSize);
     }
 
 
@@ -78,7 +83,7 @@ export class roomCreatingService{
             throw new Error('Room is already currently on service');
         }
     
-    const existingBookings = await bookingModel.findAll({
+        const existingBookings = await bookingModel.findAll({
             where: {
                 room_id: roomId,
                 checkin_date: { [Op.lte]: checkoutDate },
@@ -160,17 +165,3 @@ export class roomCreatingService{
     }
 }
 
-  // static async checkAvailability(roomId) {
-    //     try {
-    //         const room = await roomModel.findByPk(roomId);
-    //         if (!room) {
-    //             throw new Error('Room not found');
-    //         }
-    //         if (!room.room_availability) {
-    //             throw new Error('Room is already occupied');
-    //         }
-    //         return room;
-    //     } catch (error) {
-    //         throw error;
-    //     }
-    // }

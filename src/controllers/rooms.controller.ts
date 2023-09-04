@@ -41,5 +41,35 @@ export class RoomCreatingController{
             })   
         }
     }
+
+    static async setRoomAvailabilityToTrue(req, res) {
+        try {
+          const { roomId } = req.params;
+          await roomCreatingService.setRoomAvailability(roomId, true);
+            res.status(responseStatus.success).json({
+                message: responseMessages.roomAvailabilityTrue
+            })
+        } catch (error) {
+          console.error(error);
+          return res.status(responseStatus.internalServerError).json({
+            message: responseMessages.internalServerError
+        })   
+        }
+      }
+    
+    static async setRoomAvailabilityToFalse(req, res) {
+        try {
+          const { roomId } = req.params;
+          await roomCreatingService.setRoomAvailability(roomId, false);
+          res.status(responseStatus.success).json({
+            message: responseMessages.roomAvailabilityFalse
+        })
+        } catch (error) {
+          console.error(error);
+          return res.status(responseStatus.internalServerError).json({
+            message: responseMessages.internalServerError
+        })   
+        }
+      }
     
 }
