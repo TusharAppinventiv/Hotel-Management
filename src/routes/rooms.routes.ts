@@ -10,6 +10,8 @@ const router = express.Router();
 
 router.post('/create', verifyAdmin,roomValidator, RoomCreatingController.createRoom);
 router.get('/getRooms', verifyAdminOrUser, RoomCreatingController.getRooms);
+router.put('/set-available/:roomId', verifyAdmin, RoomCreatingController.setRoomAvailabilityToTrue);
+router.put('/set-unavailable/:roomId', verifyAdmin, RoomCreatingController.setRoomAvailabilityToFalse);
 router.post('/bookRooms', verifyUser, bookingValidator, BookingController.createBooking);
 router.post('/confirmBooking',  bookingConfirmation, BookingController.acceptBooking);
 router.post('/denyBooking', verifyAdmin, BookingDeny, BookingController.denyBooking );
