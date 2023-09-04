@@ -28,13 +28,12 @@ class BookingController {
                     message: responseMessages.roomNotExist
                 })
             }
-            // Check room availability
             const room = await roomCreatingService.checkAvailability(data.room_id, data.checkin_date, data.checkout_date);
-    
+            
             if (!room) {
                 return res.status(responseStatus.badRequest).json({
                     message: responseMessages.roomNotAvailable
-                })
+                });
             }
     
             const bookingDuration = Math.ceil(
@@ -42,6 +41,20 @@ class BookingController {
             );
             
             const booking_date = new Date();
+            const checkin_date = new Date(data.checkin_date);
+            const checkout_date = new Date(data.checkout_date);
+            
+            if (checkin_date <= booking_date) {
+                return res.status(responseStatus.badRequest).json({
+                    message: responseMessages.greaterBookingDate
+                });
+            }
+            
+            if (checkout_date <= checkin_date) {
+                return res.status(responseStatus.badRequest).json({
+                    message: responseMessages.greaterCheckoutDate
+                });
+            }
             // Get the room's cost from the database based on room_id
             const roomCost = await roomCreatingService.getRoomCost(data.room_id);
             

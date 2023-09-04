@@ -10,7 +10,10 @@ export const responseMessages = {
     bookingNotStored: 'Error saving booking',
     userNotFound: 'User not found',
     bookingSuccess: 'Booking accepted successfully',
-    bookingDeniedSuccess: 'Booking Rejected'
+    bookingDeniedSuccess: 'Booking Rejected',
+    notValidDate: 'Not a valid date',
+    greaterBookingDate: 'Booking date must be greater than the checkIN date.',
+    greaterCheckoutDate: 'Checkout date must be greater than the checkin date.'
 };
 
 export const responseStatus = {
