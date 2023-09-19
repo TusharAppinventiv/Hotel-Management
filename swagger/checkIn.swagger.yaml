@@ -1,0 +1,155 @@
+paths:
+  /checkIn/create:
+    post:
+      summary: Create a new check-in (Admin only)
+      tags:
+        - Check-In/Check-Out
+      description: Create a new check-in. This endpoint is only accessible by admin users.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/checkIn'
+      responses:
+        '201':
+          description: Check-in created successfully.
+        '400':
+          description: Bad Request. Invalid user input.
+        '401':
+          description: Unauthorized. Admin access required.
+        '403':
+          description: Forbidden. Token missing or invalid.
+        '500':
+          description: Internal server error.
+  
+  /checkIn/checkout:
+    post:
+      summary: Check out from a room
+      tags:
+        - Check-In/Check-Out
+      description: Check out from a room using the check-in ID and user email. This endpoint is only accessible to verified users.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/checkout'
+      responses:
+        '200':
+          description: Successful checkout.
+        '400':
+          description: Bad Request. Invalid user input.
+        '401':
+          description: Unauthorized. User access required.
+        '403':
+          description: Forbidden. Token missing or invalid.
+        '500':
+          description: Internal server error.
+    
+  /checkIn/acceptCheckout:
+    post:
+      summary: Accept a checkout request (Admin only)
+      tags:
+        - Check-In/Check-Out
+      description: Accept a checkout request using the check-in ID, payment ID, and user email. This endpoint is only accessible by admin users.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/acceptCheckout'
+      responses:
+        '200':
+          description: Successful checkout acceptance.
+        '400':
+          description: Bad Request. Invalid user input.
+        '401':
+          description: Unauthorized. Admin access required.
+        '403':
+          description: Forbidden. Token missing or invalid.
+        '500':
+          description: Internal server error.
+  
+  /checkIn/declineCheckout:
+    post:
+      summary: Deny a booking request (Admin only)
+      tags:
+        - Check-In/Check-Out
+      description: Deny a booking request using the booking ID and payment ID. This endpoint is only accessible by admin users.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/denyBooking'
+      responses:
+        '200':
+          description: Successful booking denial.
+        '400':
+          description: Bad Request. Invalid user input.
+        '401':
+          description: Unauthorized. Admin access required.
+        '403':
+          description: Forbidden. Token missing or invalid.
+        '500':
+          description: Internal server error.
+
+components:
+  schemas:
+    checkIn:
+      type: object
+      properties:
+        booking_id:
+          type: integer
+          example: 123
+        secret_key:
+          type: string
+          example: abc123
+      required:
+        - booking_id
+        - secret_key
+  
+    checkout:
+      type: object
+      properties:
+        checkin_id:
+          type: integer
+          example: 123
+        email:
+          type: string
+          example: user@example.com
+      required:
+        - checkin_id
+        - email
+
+    acceptCheckout:
+      type: object
+      properties:
+        checkin_id:
+          type: integer
+          example: 123
+        payment_id:
+          type: string
+          example: abc123
+        email:
+          type: string
+          example: admin@example.com
+      required:
+        - checkin_id
+        - payment_id
+        - email
+
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
