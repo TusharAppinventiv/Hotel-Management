@@ -9,7 +9,7 @@ import bookingModel from "../models/booking.model";
 import roomModel from "../models/rooms.model";
 import { Op } from 'sequelize'; 
 
-class BookingController {
+export class BookingController {
     static async createBooking(req, res) {
         try {
             const data = req.body;
