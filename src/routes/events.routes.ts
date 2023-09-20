@@ -1,13 +1,22 @@
-import { eventValidator } from "../middlewares/event.validator";
-import { EventCreatingController } from "../controllers/events.controller";
-import express from 'express'
-import { verifyAdmin } from "../middlewares/admin.auth";
-import { verifyUser } from "../middlewares/users.auth";
-import { verifyAdminOrUser } from "../middlewares/verifyAdminOrUser";
+import express, { Router } from 'express';
+import { EventCreatingController } from '../controllers/events.controller';
+import { verifyAdmin } from '../middlewares/admin.auth';
+import { eventValidator } from '../middlewares/event.validator';
+import { verifyAdminOrUser } from '../middlewares/verifyAdminOrUser';
 
-const router = express.Router();
-router.post('/create',verifyAdmin, eventValidator, EventCreatingController.createEvent);
-router.get('/getEvents', verifyAdminOrUser, EventCreatingController.getEvents);
-router.delete('/deleteEvents', verifyAdmin, EventCreatingController.deleteEvent);
+class EventRouter {
+  public router: Router = express.Router();
 
-export default router;
+  constructor() {
+    this.initializeRoutes();
+  }
+
+  private initializeRoutes(): void {
+    this.router.post('/create', verifyAdmin, eventValidator, EventCreatingController.createEvent);
+    this.router.get('/getEvents', verifyAdminOrUser, EventCreatingController.getEvents);
+    this.router.delete('/deleteEvents', verifyAdmin, EventCreatingController.deleteEvent);
+  }
+}
+
+const eventRouter = new EventRouter();
+export default eventRouter.router;
